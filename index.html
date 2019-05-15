@@ -1,0 +1,95 @@
+|<html>
+<body onkeydown="keyCheck(event)" onclick="fire()">
+<canvas width="1200" height="600" id="canvas">
+  <script src="gameObjects/mini-shooter.js"></script>
+  <script src="gameObjects/player.js"></script>
+  <script src="gameObjects/enemy-1.js"></script>
+  <script src="gameObjects/muzzle.js"></script>
+  <script src="gameObjects/bullet.js"></script>
+  <script src="gameObjects/bullet-explosion.js"></script>
+  <script src="gameObjects/explosion.js"></script>
+  <script>
+    const CAN = canvas.getContext('2d');
+    const CANVAS_DIMENSION = {width:1200,height:600};
+    const player = new PLAYER();
+    player.init();
+    let bullets = [];
+    let muzzles = [];
+    let enemies = [];
+    let bulletExplosions = [];
+    let explosions = [];
+    let enemySpawnDuration = 100;
+    let enemySpawnTime = enemySpawnDuration;
+    animStep = 0;
+    function main() {
+      requestAnimationFrame(main);
+      refreshCanvas();
+      draw();
+    }
+
+    function refreshCanvas() {
+      CAN.fillStyle = '#000';
+      CAN.fillRect(0,0,1200,600);
+    }
+
+    function draw() {
+      player.draw(CAN);
+      muzzleController();
+      enemyController();
+      bulletController();
+      ship1BulletExplosionController();
+      explosionController();
+      createEnemy();
+    }
+
+    function keyCheck(ev) {
+      if(ev.key === 's') {
+        player.downward();
+      } else if(ev.key === 'w') {
+        player.upward();
+      } else if(ev.key === 'a') {
+        player.backward();
+      } else if(ev.key === 'd') {
+        player.forward();
+      }
+    }
+
+    function fire() {
+      if(player.isActive) {
+        const bulletSpawnPos = player.getBulletSpawnPos();
+        createBullet(bulletSpawnPos.x,bulletSpawnPos.y);
+      }
+    }
+
+    function createBullet(xPos,yPos) {
+      muzzles.push(new MUZZLE());
+      muzzles[muzzles.length-1].init(xPos,yPos);
+      bullets.push(new BULLET());
+      bullets[bullets.length-1].init(xPos,yPos);
+    }
+
+    function createEnemy() {
+      if(enemySpawnTime < 0) {
+        enemySpawnTime = enemySpawnDuration;
+        enemies.push(new ENEMY_1);
+        let enemyXPos = Math.random()*520;
+        enemyXPos = enemyXPos < 40 ? 40 : enemyXPos;
+        enemies[enemies.length - 1].init(1300,enemyXPos);
+      }
+      enemySpawnTime--;
+    }
+
+    function createBulletExplosion(x,y) {
+      bulletExplosions.push(new SHIP_1_BULLET_EXPLOSION());
+      bulletExplosions[bulletExplosions.length-1].init(x,y);
+    }
+
+    function createExplosion(x,y) {
+      explosions.push(new EXPLOSION());
+      explosions[explosions.length-1].init(x,y);
+    }
+    createEnemy();
+    main();
+  </script>
+</body>
+</html>
